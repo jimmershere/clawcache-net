@@ -192,7 +192,7 @@ async function runSimulation() {
         <div class="meta-item">Container: <strong>${data.result.container}</strong></div>
         <div class="meta-item">Runtime: <strong>${data.result.runtime}</strong></div>
         <div class="meta-item">Memory: <strong>${data.result.memory}</strong></div>
-        <div class="meta-item">Skill: <strong>${data.result.skillName}</strong></div>`;
+        <div class="meta-item">Skill: <strong>${data.skillName || data.result.skillName}</strong></div>`;
     }
   } catch (e) {
     out.className = 'output-area';
