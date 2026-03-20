@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playbooks — ClawCache</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0c10;--surface:#111318;--surface2:#181c23;--border:#1e2330;--teal:#00ffcc;--orange:#f97316;--text:#e8eaf0;--muted:#6b7280;--purple:#9b59b6;--font:'Inter',sans-serif}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,12,16,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-logo{font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-back{font-size:0.875rem;color:var(--muted);transition:color 0.2s}.nav-back:hover{color:var(--text)}
+
+    .page-hero{padding:56px 24px 40px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(155,89,182,0.07) 0%,transparent 70%)}
+    .page-hero-inner{max-width:1200px;margin:0 auto}
+    .eyebrow{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple);margin-bottom:10px}
+    h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
+    .hero-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7}
+
+    .playbooks-section{padding:48px 24px 80px}
+    .playbooks-inner{max-width:1200px;margin:0 auto}
+
+    .playbooks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
+
+    .pb-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s,box-shadow 0.2s}
+    .pb-card:hover{transform:translateY(-3px)}
+    .pb-card.nano:hover{box-shadow:0 8px 32px rgba(249,115,22,0.15)}
+    .pb-card.claw:hover{box-shadow:0 8px 32px rgba(0,255,204,0.12)}
+    .pb-card.both:hover{box-shadow:0 8px 32px rgba(155,89,182,0.15)}
+
+    .pb-header{padding:28px 28px 20px;border-bottom:1px solid var(--border)}
+    .pb-icon-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+    .pb-icon{font-size:2.2rem;line-height:1}
+    .pb-price{font-size:1.5rem;font-weight:900;letter-spacing:-0.02em}
+    .pb-card.nano .pb-price{color:var(--orange)}
+    .pb-card.claw .pb-price{color:var(--teal)}
+    .pb-card.both .pb-price{color:var(--purple)}
+    .pb-title{font-size:1.1rem;font-weight:800;line-height:1.3;margin-bottom:10px;letter-spacing:-0.01em}
+    .pb-badges{display:flex;gap:6px;flex-wrap:wrap}
+    .badge{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:2px 7px;border-radius:4px}
+    .badge-nano{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.25)}
+    .badge-claw{background:rgba(0,255,204,0.08);color:var(--teal);border:1px solid rgba(0,255,204,0.2)}
+    .badge-both{background:rgba(155,89,182,0.1);color:#b97fd6;border:1px solid rgba(155,89,182,0.25)}
+    .badge-pdf{background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)}
+
+    .pb-body{padding:20px 28px;flex:1}
+    .pb-desc{color:var(--muted);font-size:0.9rem;line-height:1.7;margin-bottom:16px}
+    .pb-includes{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .pb-includes li{font-size:0.85rem;color:var(--muted);padding-left:18px;position:relative;line-height:1.5}
+    .pb-includes li::before{content:'✓';position:absolute;left:0;font-weight:700}
+    .pb-card.nano .pb-includes li::before{color:var(--orange)}
+    .pb-card.claw .pb-includes li::before{color:var(--teal)}
+    .pb-card.both .pb-includes li::before{color:var(--purple)}
+
+    .pb-footer{padding:20px 28px;border-top:1px solid var(--border)}
+    .btn-buy{display:block;text-align:center;font-weight:700;font-size:0.9rem;padding:12px;border-radius:8px;transition:opacity 0.2s,transform 0.2s;cursor:pointer}
+    .btn-buy:hover{opacity:0.88;transform:translateY(-1px)}
+    .pb-card.nano .btn-buy{background:var(--orange);color:#0a0c10}
+    .pb-card.claw .btn-buy{background:var(--teal);color:#0a0c10}
+    .pb-card.both .btn-buy{background:var(--purple);color:#fff}
+
+    .coming-soon-overlay{position:relative}
+    .coming-label{position:absolute;top:12px;right:12px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:20px}
+
+    .value-strip{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;margin-top:40px;display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+    .value-text h3{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+    .value-text p{color:var(--muted);font-size:0.9rem;max-width:480px;line-height:1.6}
+    .btn-consult{background:var(--teal);color:#0a0c10;font-weight:700;font-size:0.9rem;padding:12px 24px;border-radius:8px;white-space:nowrap;transition:opacity 0.2s}
+    .btn-consult:hover{opacity:0.88}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🗄️ ClawCache</a>
+    <a href="/" class="nav-back">← Home</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">Knowledge Products</div>
+    <h1>📚 Playbooks</h1>
+    <p class="hero-sub">Deep-dive production guides built from real NanoClaw and OpenClaw deployments. Not theory — actual patterns that ship.</p>
+  </div>
+</div>
+
+<div class="playbooks-section">
+  <div class="playbooks-inner">
+    <div class="playbooks-grid">
+
+      <div class="pb-card nano">
+        <div class="pb-header">
+          <div class="pb-icon-row">
+            <div class="pb-icon">🐝</div>
+            <div class="pb-price">$29</div>
+          </div>
+          <div class="pb-title">NanoClaw Swarm Coordinator</div>
+          <div class="pb-badges">
+            <span class="badge badge-nano">NanoClaw</span>
+            <span class="badge badge-pdf">PDF + Templates</span>
+          </div>
+        </div>
+        <div class="pb-body">
+          <p class="pb-desc">Architect and deploy multi-agent swarms from zero. Orchestrator patterns, specialist agent design, IPC coordination, and 3 real-world swarm templates ready to fork.</p>
+          <ul class="pb-includes">
+            <li>Orchestrator vs specialist agent design patterns</li>
+            <li>IPC filesystem coordination guide</li>
+            <li>3 swarm templates: research, content, data analysis</li>
+            <li>Container resource sizing for swarm workloads</li>
+            <li>Failure handling and agent timeout patterns</li>
+            <li>20-page PDF + 3 SKILL.md templates</li>
+          </ul>
+        </div>
+        <div class="pb-footer">
+          <a href="#" class="btn-buy" onclick="alert('Payment coming soon — email hello@clawfactory.me to order early.')">Get Playbook — $29 →</a>
+        </div>
+      </div>
+
+      <div class="pb-card nano">
+        <div class="pb-header">
+          <div class="pb-icon-row">
+            <div class="pb-icon">🔒</div>
+            <div class="pb-price">$29</div>
+          </div>
+          <div class="pb-title">Container Security Hardener</div>
+          <div class="pb-badges">
+            <span class="badge badge-nano">NanoClaw</span>
+            <span class="badge badge-pdf">PDF + Scripts</span>
+          </div>
+        </div>
+        <div class="pb-body">
+          <p class="pb-desc">Lock down your NanoClaw containers to minimal exposure. Mount auditing, secrets management, network isolation, and a hardened docker-compose you can drop straight in.</p>
+          <ul class="pb-includes">
+            <li>Minimal mount principle — what to expose and why</li>
+            <li>Secrets management inside containers</li>
+            <li>Network isolation patterns</li>
+            <li>Audit logging for container activity</li>
+            <li>Hardened docker-compose template</li>
+            <li>15-page PDF + 2 scripts</li>
+          </ul>
+        </div>
+        <div class="pb-footer">
+          <a href="#" class="btn-buy" onclick="alert('Payment coming soon — email hello@clawfactory.me to order early.')">Get Playbook — $29 →</a>
+        </div>
+      </div>
+
+      <div class="pb-card nano">
+        <div class="pb-header">
+          <div class="pb-icon-row">
+            <div class="pb-icon">💬</div>
+            <div class="pb-price">$29</div>
+          </div>
+          <div class="pb-title">NanoClaw + Telegram: Production Setup</div>
+          <div class="pb-badges">
+            <span class="badge badge-nano">NanoClaw</span>
+            <span class="badge badge-pdf">PDF + Scripts</span>
+          </div>
+        </div>
+        <div class="pb-body">
+          <p class="pb-desc">Full production deployment on a VPS. Telegram bot config, SSL, pm2/systemd, backup strategy, monitoring, and a rollback plan when things go sideways.</p>
+          <ul class="pb-includes">
+            <li>VPS selection and base configuration</li>
+            <li>Telegram bot setup from scratch</li>
+            <li>SSL + reverse proxy configuration</li>
+            <li>pm2/systemd service setup + auto-restart</li>
+            <li>Backup and restore procedures</li>
+            <li>18-page PDF + setup scripts</li>
+          </ul>
+        </div>
+        <div class="pb-footer">
+          <a href="#" class="btn-buy" onclick="alert('Payment coming soon — email hello@clawfactory.me to order early.')">Get Playbook — $29 →</a>
+        </div>
+      </div>
+
+      <div class="pb-card both">
+        <div class="pb-header">
+          <div class="pb-icon-row">
+            <div class="pb-icon">🛠️</div>
+            <div class="pb-price">$19</div>
+          </div>
+          <div class="pb-title">Build Your First Claw Skill</div>
+          <div class="pb-badges">
+            <span class="badge badge-both">Both Platforms</span>
+            <span class="badge badge-pdf">PDF + Examples</span>
+          </div>
+        </div>
+        <div class="pb-body">
+          <p class="pb-desc">Skill authoring from zero to published. SKILL.md format, slash command design, testing patterns, and how to submit to the ClawCache registry. Beginner-friendly.</p>
+          <ul class="pb-includes">
+            <li>SKILL.md format deep dive — every field explained</li>
+            <li>Slash command design patterns</li>
+            <li>Testing your skill locally before submitting</li>
+            <li>NanoClaw vs OpenClaw skill differences</li>
+            <li>Registry submission walkthrough</li>
+            <li>12-page PDF + 3 example skills</li>
+          </ul>
+        </div>
+        <div class="pb-footer">
+          <a href="#" class="btn-buy" onclick="alert('Payment coming soon — email hello@clawfactory.me to order early.')">Get Playbook — $19 →</a>
+        </div>
+      </div>
+
+      <div class="pb-card nano">
+        <div class="pb-header">
+          <div class="pb-icon-row">
+            <div class="pb-icon">🏗️</div>
+            <div class="pb-price">$49</div>
+          </div>
+          <div class="pb-title">NanoClaw Enterprise Deployment</div>
+          <div class="pb-badges">
+            <span class="badge badge-nano">NanoClaw</span>
+            <span class="badge badge-pdf">PDF + Consulting Upsell</span>
+          </div>
+        </div>
+        <div class="pb-body">
+          <p class="pb-desc">Deploy NanoClaw for a team. Multi-user setup, role separation, shared group management, audit trails, and container orchestration considerations at scale.</p>
+          <ul class="pb-includes">
+            <li>Multi-user architecture patterns</li>
+            <li>Role-based group access design</li>
+            <li>Audit trail implementation</li>
+            <li>Kubernetes considerations for NanoClaw</li>
+            <li>Monitoring + alerting setup</li>
+            <li>25-page PDF + ClawFactory.me consulting path</li>
+          </ul>
+        </div>
+        <div class="pb-footer">
+          <a href="#" class="btn-buy" onclick="alert('Payment coming soon — email hello@clawfactory.me to order early.')">Get Playbook — $49 →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="value-strip">
+      <div class="value-text">
+        <h3>Need a custom deployment?</h3>
+        <p>ClawFactory.me offers hands-on NanoClaw and OpenClaw consulting — architecture review, production deployment, swarm design, and enterprise setup. Built by the team that runs this platform.</p>
+      </div>
+      <a href="https://clawfactory.me#contact" target="_blank" class="btn-consult">Talk to Us →</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

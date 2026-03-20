@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skill Sandbox — ClawCache</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0c10;--surface:#111318;--surface2:#181c23;--border:#1e2330;--teal:#00ffcc;--orange:#f97316;--text:#e8eaf0;--muted:#6b7280;--success:#22c55e;--danger:#ef4444;--font:'Inter',sans-serif;--mono:'Fira Mono','Courier New',monospace}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+    a{color:inherit;text-decoration:none}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,12,16,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-logo{font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-back{font-size:0.875rem;color:var(--muted);transition:color 0.2s}.nav-back:hover{color:var(--text)}
+
+    .page-hero{padding:56px 24px 40px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,255,204,0.07) 0%,transparent 70%)}
+    .page-hero-inner{max-width:900px;margin:0 auto}
+    .eyebrow{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);margin-bottom:10px}
+    h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
+    .hero-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7}
+
+    .sandbox-wrap{max-width:900px;margin:40px auto;padding:0 24px 80px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    @media(max-width:700px){.sandbox-wrap{grid-template-columns:1fr}}
+
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .panel-title{font-size:0.85rem;font-weight:700;color:var(--text)}
+    .panel-badge{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:2px 8px;border-radius:4px;background:rgba(0,255,204,0.1);color:var(--teal);border:1px solid rgba(0,255,204,0.2)}
+
+    textarea{width:100%;background:var(--surface2);border:none;color:var(--text);font-family:var(--mono);font-size:0.85rem;padding:18px;min-height:320px;resize:vertical;outline:none;line-height:1.6}
+    textarea::placeholder{color:var(--muted)}
+
+    .panel-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px}
+    .btn-run{background:var(--teal);color:#0a0c10;font-family:var(--font);font-weight:700;font-size:0.9rem;padding:10px 24px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+    .btn-run:hover{opacity:0.88;transform:translateY(-1px)}
+    .btn-run:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+    .btn-clear{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--font);font-size:0.85rem;padding:10px 16px;border-radius:7px;cursor:pointer;transition:all 0.2s}
+    .btn-clear:hover{border-color:var(--text);color:var(--text)}
+
+    .output-area{padding:18px;min-height:320px;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--muted);white-space:pre-wrap}
+    .output-area.idle{display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;gap:12px}
+    .output-area .idle-icon{font-size:2rem}
+    .output-area.running{color:var(--teal);animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+
+    .result-pass{border-top:3px solid var(--success)}
+    .result-fail{border-top:3px solid var(--danger)}
+
+    .checks{padding:14px 20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+    .check-row{display:flex;align-items:center;justify-content:space-between;font-size:0.82rem}
+    .check-name{color:var(--muted)}
+    .check-pass{color:var(--success);font-weight:700;font-size:0.75rem}
+    .check-fail{color:var(--danger);font-weight:700;font-size:0.75rem}
+
+    .meta-bar{padding:10px 20px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap}
+    .meta-item{font-size:0.78rem;color:var(--muted)}.meta-item strong{color:var(--teal)}
+
+    .example-btn{font-size:0.78rem;color:var(--teal);cursor:pointer;background:none;border:none;font-family:var(--font);text-decoration:underline}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🗄️ ClawCache</a>
+    <a href="/" class="nav-back">← Home</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">Developer Tool</div>
+    <h1>🧪 Skill Sandbox</h1>
+    <p class="hero-sub">Paste your SKILL.md and simulate execution inside an isolated NanoClaw container — no Docker, no API keys, no setup required.</p>
+  </div>
+</div>
+
+<div class="sandbox-wrap">
+  <div class="panel" id="inputPanel">
+    <div class="panel-header">
+      <span class="panel-title">SKILL.md Input</span>
+      <button class="example-btn" onclick="loadExample()">Load example →</button>
+    </div>
+    <textarea id="skillInput" placeholder="# My Skill&#10;&#10;## Description&#10;Paste your SKILL.md content here...&#10;&#10;## Usage&#10;/my-skill [args]&#10;&#10;## Steps&#10;1. Step one&#10;2. Step two"></textarea>
+    <div class="panel-footer">
+      <button class="btn-run" id="runBtn" onclick="runSimulation()">▶ Run Simulation</button>
+      <button class="btn-clear" onclick="clearAll()">Clear</button>
+      <span style="font-size:0.78rem;color:var(--muted);margin-left:auto">Simulated · No data stored</span>
+    </div>
+  </div>
+
+  <div class="panel" id="outputPanel">
+    <div class="panel-header">
+      <span class="panel-title">Simulation Output</span>
+      <span class="panel-badge" id="statusBadge">READY</span>
+    </div>
+    <div class="output-area idle" id="outputArea">
+      <div class="idle-icon">🟡</div>
+      <div>Paste a SKILL.md and hit Run</div>
+    </div>
+    <div class="checks" id="checksArea" style="display:none"></div>
+    <div class="meta-bar" id="metaBar" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+const EXAMPLE = `# Summarizer Skill
+name: summarizer
+description: Summarizes any URL or text content into bullet points
+
+## Usage
+/summarize [url or text]
+
+## Steps
+1. Receive URL or text from user
+2. Fetch content if URL provided
+3. Extract key points using Claude
+4. Return formatted bullet summary
+
+## Container Requirements
+- Network: read-only web access
+- Filesystem: none required
+- Memory: 256MB`;
+
+function loadExample() {
+  document.getElementById('skillInput').value = EXAMPLE;
+}
+
+function clearAll() {
+  document.getElementById('skillInput').value = '';
+  document.getElementById('outputArea').className = 'output-area idle';
+  document.getElementById('outputArea').innerHTML = '<div class="idle-icon">🟡</div><div>Paste a SKILL.md and hit Run</div>';
+  document.getElementById('checksArea').style.display = 'none';
+  document.getElementById('metaBar').style.display = 'none';
+  document.getElementById('statusBadge').textContent = 'READY';
+  document.getElementById('statusBadge').style.background = '';
+  document.getElementById('statusBadge').style.color = '';
+  document.getElementById('outputPanel').className = 'panel';
+}
+
+async function runSimulation() {
+  const skill = document.getElementById('skillInput').value.trim();
+  if (!skill) return;
+  const btn = document.getElementById('runBtn');
+  const out = document.getElementById('outputArea');
+  const badge = document.getElementById('statusBadge');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Simulating...';
+  out.className = 'output-area running';
+  out.innerHTML = '> Spawning container...\n> Mounting skill directory...\n> Initializing Claude Agent SDK...';
+  badge.textContent = 'RUNNING';
+  badge.style.background = 'rgba(249,115,22,0.15)';
+  badge.style.color = '#f97316';
+  document.getElementById('checksArea').style.display = 'none';
+  document.getElementById('metaBar').style.display = 'none';
+
+  try {
+    const res = await fetch('https://glistening-spontaneity-production.up.railway.app/api/simulate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ skill })
+    });
+    const data = await res.json();
+
+    if (!data.ok) {
+      out.className = 'output-area';
+      out.textContent = '❌ ' + data.error;
+      badge.textContent = 'ERROR';
+      badge.style.background = 'rgba(239,68,68,0.15)';
+      badge.style.color = '#ef4444';
+    } else {
+      out.className = 'output-area';
+      out.textContent = data.result.output;
+      badge.textContent = data.result.status;
+      badge.style.background = 'rgba(34,197,94,0.15)';
+      badge.style.color = '#22c55e';
+      document.getElementById('outputPanel').className = 'panel result-pass';
+
+      // Checks
+      const checksEl = document.getElementById('checksArea');
+      checksEl.style.display = 'flex';
+      checksEl.innerHTML = data.result.checks.map(c =>
+        `<div class="check-row"><span class="check-name">${c.name}</span><span class="${c.pass ? 'check-pass' : 'check-fail'}">${c.pass ? '✓ PASS' : '✗ FAIL'}</span></div>`
+      ).join('');
+
+      // Meta
+      const metaEl = document.getElementById('metaBar');
+      metaEl.style.display = 'flex';
+      metaEl.innerHTML = `
+        <div class="meta-item">Container: <strong>${data.result.container}</strong></div>
+        <div class="meta-item">Runtime: <strong>${data.result.runtime}</strong></div>
+        <div class="meta-item">Memory: <strong>${data.result.memory}</strong></div>
+        <div class="meta-item">Skill: <strong>${data.result.skillName}</strong></div>`;
+    }
+  } catch (e) {
+    out.className = 'output-area';
+    out.textContent = '❌ Simulation error: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Run Simulation';
+}
+</script>
+</body>
+</html>

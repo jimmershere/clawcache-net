@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swarm Simulator — ClawCache</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0c10;--surface:#111318;--surface2:#181c23;--border:#1e2330;--teal:#00ffcc;--orange:#f97316;--text:#e8eaf0;--muted:#6b7280;--success:#22c55e;--font:'Inter',sans-serif}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,12,16,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-logo{font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-back{font-size:0.875rem;color:var(--muted);transition:color 0.2s}.nav-back:hover{color:var(--text)}
+
+    .page-hero{padding:56px 24px 40px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(249,115,22,0.07) 0%,transparent 70%)}
+    .page-hero-inner{max-width:900px;margin:0 auto}
+    .eyebrow{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--orange);margin-bottom:10px}
+    h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
+    .hero-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7}
+
+    .sim-wrap{max-width:900px;margin:40px auto;padding:0 24px 80px;display:flex;flex-direction:column;gap:24px}
+
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .panel-title{font-size:0.875rem;font-weight:700}
+    .panel-body{padding:20px}
+
+    .agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+    .agent-slot{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px}
+    .agent-slot:first-child{border-color:var(--orange)}
+    .agent-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted)}
+    .agent-slot:first-child .agent-label{color:var(--orange)}
+    input[type=text]{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font);font-size:0.85rem;padding:8px 12px;width:100%;outline:none;transition:border-color 0.2s}
+    input[type=text]:focus{border-color:var(--teal)}
+
+    .msg-row{display:flex;gap:12px;align-items:flex-end}
+    .msg-row textarea{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font);font-size:0.9rem;padding:12px;resize:none;outline:none;transition:border-color 0.2s;min-height:72px}
+    .msg-row textarea:focus{border-color:var(--teal)}
+    .btn-sim{background:var(--orange);color:#0a0c10;font-family:var(--font);font-weight:700;font-size:0.9rem;padding:10px 24px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+    .btn-sim:hover{opacity:0.88;transform:translateY(-1px)}
+    .btn-sim:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+    .timeline{display:flex;flex-direction:column;gap:0}
+    .timeline-step{display:flex;align-items:flex-start;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border);opacity:0;transform:translateY(8px);transition:opacity 0.3s,transform 0.3s}
+    .timeline-step:last-child{border-bottom:none}
+    .timeline-step.visible{opacity:1;transform:none}
+    .step-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+    .dot-receive{background:var(--teal)}
+    .dot-delegate{background:var(--orange)}
+    .dot-process{background:#6366f1}
+    .dot-complete{background:var(--success)}
+    .dot-aggregate{background:var(--orange)}
+    .dot-deliver{background:var(--teal)}
+    .step-content{flex:1}
+    .step-agent{font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:2px}
+    .step-action{font-size:0.9rem;color:var(--text)}
+    .step-ms{font-size:0.75rem;color:var(--muted);margin-left:auto;flex-shrink:0;padding-top:4px}
+
+    .result-summary{background:var(--surface2);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:16px 20px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .summary-label{font-size:0.85rem;color:var(--success);font-weight:700}
+    .summary-meta{display:flex;gap:20px;flex-wrap:wrap}
+    .summary-item{font-size:0.8rem;color:var(--muted)}.summary-item strong{color:var(--text)}
+
+    .empty-state{padding:48px;text-align:center;color:var(--muted);font-size:0.9rem}
+    .empty-icon{font-size:2rem;margin-bottom:12px}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🗄️ ClawCache</a>
+    <a href="/" class="nav-back">← Home</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">Developer Tool</div>
+    <h1>🐝 Swarm Simulator</h1>
+    <p class="hero-sub">Define your agents and a message. Watch how NanoClaw's swarm architecture coordinates between containers in real time.</p>
+  </div>
+</div>
+
+<div class="sim-wrap">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Agent Configuration</span>
+      <span style="font-size:0.78rem;color:var(--muted)">First agent = orchestrator</span>
+    </div>
+    <div class="panel-body">
+      <div class="agents-grid" id="agentsGrid"></div>
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <button onclick="addAgent()" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);color:var(--orange);font-family:var(--font);font-size:0.8rem;font-weight:600;padding:7px 16px;border-radius:6px;cursor:pointer;">+ Add Agent</button>
+        <button onclick="removeAgent()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--font);font-size:0.8rem;padding:7px 16px;border-radius:6px;cursor:pointer;">- Remove</button>
+      </div>
+      <div class="msg-row">
+        <textarea id="messageInput" placeholder="Enter the message or task to send to the swarm...">Research the latest NanoClaw release notes, summarize the key changes, and draft a tweet thread about it.</textarea>
+        <button class="btn-sim" id="simBtn" onclick="runSwarm()">▶ Simulate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="timelinePanel">
+    <div class="panel-header">
+      <span class="panel-title">Swarm Execution Timeline</span>
+      <span style="font-size:0.78rem;color:var(--muted)">IPC visualization</span>
+    </div>
+    <div id="timelineBody">
+      <div class="empty-state">
+        <div class="empty-icon">🐝</div>
+        Configure agents above and hit Simulate
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let agentCount = 3;
+const DEFAULT_AGENTS = [
+  { name: 'Commander', role: 'Orchestrator' },
+  { name: 'Scout', role: 'Research Agent' },
+  { name: 'Writer', role: 'Content Agent' },
+];
+
+function renderAgents() {
+  const grid = document.getElementById('agentsGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < agentCount; i++) {
+    const def = DEFAULT_AGENTS[i] || { name: `Agent ${i+1}`, role: 'Specialist' };
+    grid.innerHTML += `
+      <div class="agent-slot">
+        <div class="agent-label">${i === 0 ? '👑 Orchestrator' : `Agent ${i+1}`}</div>
+        <input type="text" id="agentName${i}" value="${def.name}" placeholder="Agent name" />
+        <input type="text" id="agentRole${i}" value="${def.role}" placeholder="Role/specialty" />
+      </div>`;
+  }
+}
+
+function addAgent() {
+  if (agentCount >= 5) return;
+  agentCount++;
+  renderAgents();
+}
+
+function removeAgent() {
+  if (agentCount <= 2) return;
+  agentCount--;
+  renderAgents();
+}
+
+async function runSwarm() {
+  const agents = [];
+  for (let i = 0; i < agentCount; i++) {
+    agents.push({
+      name: document.getElementById(`agentName${i}`).value || `Agent ${i+1}`,
+      role: document.getElementById(`agentRole${i}`).value || 'Specialist'
+    });
+  }
+  const message = document.getElementById('messageInput').value.trim();
+  if (!message) return;
+
+  const btn = document.getElementById('simBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+  document.getElementById('timelineBody').innerHTML = '<div class="empty-state" style="color:var(--orange)">🐝 Spawning containers...</div>';
+
+  try {
+    const res = await fetch('https://glistening-spontaneity-production.up.railway.app/api/swarm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agents, message })
+    });
+    const data = await res.json();
+
+    if (!data.ok) {
+      document.getElementById('timelineBody').innerHTML = `<div class="empty-state">❌ ${data.error}</div>`;
+      return;
+    }
+
+    const body = document.getElementById('timelineBody');
+    const timeline = document.createElement('div');
+    timeline.className = 'timeline';
+
+    data.steps.forEach((step, i) => {
+      const el = document.createElement('div');
+      el.className = `timeline-step`;
+      el.innerHTML = `
+        <div class="step-dot dot-${step.type}"></div>
+        <div class="step-content">
+          <div class="step-agent">${step.agent} · ${step.role}</div>
+          <div class="step-action">${step.action}</div>
+        </div>
+        <div class="step-ms">+${step.ms}ms</div>`;
+      timeline.appendChild(el);
+    });
+
+    const summary = document.createElement('div');
+    summary.className = 'result-summary';
+    summary.innerHTML = `
+      <div class="summary-label">✅ Swarm completed</div>
+      <div class="summary-meta">
+        <div class="summary-item">Agents: <strong>${agents.length}</strong></div>
+        <div class="summary-item">Containers: <strong>${agents.length}</strong></div>
+        <div class="summary-item">Total time: <strong>${data.totalMs}ms</strong></div>
+        <div class="summary-item">IPC calls: <strong>${data.steps.length - 2}</strong></div>
+      </div>`;
+
+    body.innerHTML = '';
+    body.appendChild(timeline);
+    body.appendChild(summary);
+
+    // Animate steps
+    timeline.querySelectorAll('.timeline-step').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), i * 180);
+    });
+    setTimeout(() => summary.style.opacity = '1', data.steps.length * 180 + 200);
+
+  } catch(e) {
+    document.getElementById('timelineBody').innerHTML = `<div class="empty-state">❌ ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Simulate';
+}
+
+renderAgents();
+</script>
+</body>
+</html>

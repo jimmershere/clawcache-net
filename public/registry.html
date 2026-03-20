@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skill Registry — ClawCache</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0c10;--surface:#111318;--surface2:#181c23;--border:#1e2330;--teal:#00ffcc;--orange:#f97316;--text:#e8eaf0;--muted:#6b7280;--success:#22c55e;--font:'Inter',sans-serif;--mono:'Fira Mono',monospace}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,12,16,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-logo{font-size:1.1rem;font-weight:800;background:linear-gradient(90deg,var(--teal),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .nav-right{display:flex;align-items:center;gap:16px}
+    .nav-back{font-size:0.875rem;color:var(--muted);transition:color 0.2s}.nav-back:hover{color:var(--text)}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:7px;font-size:0.85rem;font-weight:700;transition:all 0.2s}
+    .btn-teal{background:var(--teal);color:#0a0c10}.btn-teal:hover{opacity:0.88}
+
+    .page-hero{padding:56px 24px 40px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,255,204,0.06) 0%,transparent 70%)}
+    .page-hero-inner{max-width:1200px;margin:0 auto}
+    .eyebrow{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);margin-bottom:10px}
+    h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:12px}
+    .hero-sub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.7}
+
+    .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;position:sticky;top:64px;z-index:90}
+    .filter-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .filter-btn{padding:6px 14px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all 0.2s;font-family:var(--font)}
+    .filter-btn:hover,.filter-btn.active{border-color:var(--teal);color:var(--teal);background:rgba(0,255,204,0.07)}
+
+    .registry-section{padding:40px 24px 80px}
+    .registry-inner{max-width:1200px;margin:0 auto}
+    .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+
+    .skill-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;transition:border-color 0.2s,box-shadow 0.2s,transform 0.2s}
+    .skill-card:hover{transform:translateY(-2px)}
+    .skill-card.nano:hover{border-color:var(--orange);box-shadow:0 0 20px rgba(249,115,22,0.1)}
+    .skill-card.claw:hover{border-color:var(--teal);box-shadow:0 0 20px rgba(0,255,204,0.1)}
+    .skill-card.both:hover{border-color:#9b59b6;box-shadow:0 0 20px rgba(155,89,182,0.1)}
+
+    .card-head{display:flex;align-items:center;gap:12px}
+    .card-icon{font-size:1.8rem;line-height:1}
+    .card-meta{flex:1}
+    .card-name{font-size:1rem;font-weight:700;color:var(--text)}
+    .card-badges{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+    .badge{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:2px 7px;border-radius:4px}
+    .badge-nano{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.25)}
+    .badge-claw{background:rgba(0,255,204,0.08);color:var(--teal);border:1px solid rgba(0,255,204,0.2)}
+    .badge-both{background:rgba(155,89,182,0.1);color:#b97fd6;border:1px solid rgba(155,89,182,0.25)}
+    .badge-pass{background:rgba(34,197,94,0.08);color:var(--success);border:1px solid rgba(34,197,94,0.2)}
+
+    .card-desc{color:var(--muted);font-size:0.875rem;line-height:1.65;flex:1}
+    .card-cmd{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px}
+    .cmd-text{font-family:var(--mono);font-size:0.78rem;color:var(--teal)}
+    .copy-btn{font-size:0.72rem;color:var(--muted);cursor:pointer;background:none;border:1px solid var(--border);padding:3px 8px;border-radius:4px;font-family:var(--font);transition:all 0.2s}
+    .copy-btn:hover{border-color:var(--teal);color:var(--teal)}
+
+    .submit-strip{background:var(--surface);border:1px dashed var(--border);border-radius:10px;padding:28px;text-align:center;margin-top:24px}
+    .submit-strip p{color:var(--muted);font-size:0.9rem;margin-bottom:14px}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🗄️ ClawCache</a>
+    <div class="nav-right">
+      <a href="/" class="nav-back">← Home</a>
+      <a href="https://clawfactory.net/submit" target="_blank" class="btn btn-teal">Submit a Skill →</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">Registry</div>
+    <h1>📦 Skill Registry</h1>
+    <p class="hero-sub">Vetted community skills for NanoClaw and OpenClaw. Every skill passes the ClawFactory 3-gate pipeline before listing.</p>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-inner">
+    <button class="filter-btn active" data-filter="all" onclick="filter('all',this)">All</button>
+    <button class="filter-btn" data-filter="nano" onclick="filter('nano',this)">🟠 NanoClaw</button>
+    <button class="filter-btn" data-filter="claw" onclick="filter('claw',this)">🦞 OpenClaw</button>
+    <button class="filter-btn" data-filter="both" onclick="filter('both',this)">✨ Both</button>
+  </div>
+</div>
+
+<div class="registry-section">
+  <div class="registry-inner">
+    <div class="skills-grid">
+
+      <div class="skill-card nano" data-platform="nano">
+        <div class="card-head">
+          <div class="card-icon">🔒</div>
+          <div class="card-meta">
+            <div class="card-name">container-hardener</div>
+            <div class="card-badges">
+              <span class="badge badge-nano">NanoClaw</span>
+              <span class="badge badge-pass">✓ Vetted</span>
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">Audits your docker-compose mounts, flags over-permissioned paths, and outputs a hardened config with minimal filesystem exposure. Principle of least privilege for your NanoClaw setup.</p>
+        <div class="card-cmd">
+          <span class="cmd-text">/add-container-hardener</span>
+          <button class="copy-btn" onclick="copy(this,'/add-container-hardener')">Copy</button>
+        </div>
+      </div>
+
+      <div class="skill-card nano" data-platform="nano">
+        <div class="card-head">
+          <div class="card-icon">🐝</div>
+          <div class="card-meta">
+            <div class="card-name">swarm-coordinator</div>
+            <div class="card-badges">
+              <span class="badge badge-nano">NanoClaw</span>
+              <span class="badge badge-pass">✓ Vetted</span>
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">Orchestrate NanoClaw agent swarms. Define specialist agents, assign delegation rules, and coordinate results. Pre-built patterns for research, content, and data analysis swarms.</p>
+        <div class="card-cmd">
+          <span class="cmd-text">/add-swarm-coordinator</span>
+          <button class="copy-btn" onclick="copy(this,'/add-swarm-coordinator')">Copy</button>
+        </div>
+      </div>
+
+      <div class="skill-card both" data-platform="both">
+        <div class="card-head">
+          <div class="card-icon">🧠</div>
+          <div class="card-meta">
+            <div class="card-name">tiered-memory</div>
+            <div class="card-badges">
+              <span class="badge badge-both">Both Platforms</span>
+              <span class="badge badge-pass">✓ Vetted</span>
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">Three-tier memory architecture: hot (session), warm (daily notes), cold (long-term). Works on both NanoClaw and OpenClaw. Your agent remembers what matters across restarts.</p>
+        <div class="card-cmd">
+          <span class="cmd-text">/add-tiered-memory</span>
+          <button class="copy-btn" onclick="copy(this,'/add-tiered-memory')">Copy</button>
+        </div>
+      </div>
+
+      <div class="skill-card claw" data-platform="claw">
+        <div class="card-head">
+          <div class="card-icon">🧹</div>
+          <div class="card-meta">
+            <div class="card-name">deslop</div>
+            <div class="card-badges">
+              <span class="badge badge-claw">OpenClaw</span>
+              <span class="badge badge-pass">✓ Vetted</span>
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">Remove AI-style code slop from a branch. Reviews diffs, deletes inconsistent defensive noise, preserves behavior and local style. The code review you wish you'd had before your PR.</p>
+        <div class="card-cmd">
+          <span class="cmd-text">clawhub install deslop</span>
+          <button class="copy-btn" onclick="copy(this,'clawhub install deslop')">Copy</button>
+        </div>
+      </div>
+
+      <div class="skill-card nano" data-platform="nano">
+        <div class="card-head">
+          <div class="card-icon">📡</div>
+          <div class="card-meta">
+            <div class="card-name">ipc-debugger</div>
+            <div class="card-badges">
+              <span class="badge badge-nano">NanoClaw</span>
+              <span class="badge badge-pass">✓ Vetted</span>
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">Debug filesystem IPC between NanoClaw containers and the host process. Logs mount events, traces message passing, and surfaces timing issues in multi-agent setups.</p>
+        <div class="card-cmd">
+          <span class="cmd-text">/add-ipc-debugger</span>
+          <button class="copy-btn" onclick="copy(this,'/add-ipc-debugger')">Copy</button>
+        </div>
+      </div>
+
+      <div class="skill-card claw" data-platform="claw">
+        <div class="card-head">
+          <div class="card-icon">📈</div>
+          <div class="card-meta">
+            <div class="card-name">x-algorithm</div>
+            <div class="card-badges">
+              <span class="badge badge-claw">OpenClaw</span>
+              <span class="badge badge-pass">✓ Vetted</span>
+            </div>
+          </div>
+        </div>
+        <p class="card-desc">X/Twitter algorithm rules for AI agents. Boost engagement, avoid reach death. Works with Claude, ChatGPT, Copilot. Rules straight from the algorithm. Vibe-coding ready.</p>
+        <div class="card-cmd">
+          <span class="cmd-text">clawhub install x-algorithm</span>
+          <button class="copy-btn" onclick="copy(this,'clawhub install x-algorithm')">Copy</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="submit-strip">
+      <p>Have a vetted NanoClaw or OpenClaw skill? Submit it to the ClawCache registry.</p>
+      <a href="https://clawfactory.net/submit" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--teal);color:#0a0c10;font-weight:700;font-size:0.875rem;padding:10px 22px;border-radius:7px;">Submit Your Skill →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function filter(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.skill-card').forEach(card => {
+    card.classList.toggle('hidden', type !== 'all' && card.dataset.platform !== type);
+  });
+}
+function copy(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.style.color = 'var(--teal)';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
