@@ -122,7 +122,7 @@
           </ul>
         </div>
         <div class="pb-footer">
-          <a href="mailto:hello@clawfactory.me?subject=Playbook Order" class="btn-buy">Get Playbook — $29 →</a>
+          <button onclick="buyPlaybook('featured', 'Get Playbook — $29 →')" class="btn-buy">Get Playbook — $29 →</button>
         </div>
       </div>
 
@@ -150,7 +150,7 @@
           </ul>
         </div>
         <div class="pb-footer">
-          <a href="mailto:hello@clawfactory.me?subject=Playbook Order" class="btn-buy">Get Playbook — $29 →</a>
+          <button onclick="buyPlaybook('featured', 'Get Playbook — $29 →')" class="btn-buy">Get Playbook — $29 →</button>
         </div>
       </div>
 
@@ -178,7 +178,7 @@
           </ul>
         </div>
         <div class="pb-footer">
-          <a href="mailto:hello@clawfactory.me?subject=Playbook Order" class="btn-buy">Get Playbook — $29 →</a>
+          <button onclick="buyPlaybook('featured', 'Get Playbook — $29 →')" class="btn-buy">Get Playbook — $29 →</button>
         </div>
       </div>
 
@@ -206,7 +206,7 @@
           </ul>
         </div>
         <div class="pb-footer">
-          <a href="mailto:hello@clawfactory.me?subject=Playbook Order" class="btn-buy">Get Playbook — $19 →</a>
+          <button onclick="buyPlaybook('pro', 'Get Playbook — $19 →')" class="btn-buy">Get Playbook — $19 →</button>
         </div>
       </div>
 
@@ -234,7 +234,7 @@
           </ul>
         </div>
         <div class="pb-footer">
-          <a href="mailto:hello@clawfactory.me?subject=Playbook Order" class="btn-buy">Get Playbook — $49 →</a>
+          <button onclick="buyPlaybook('review', 'Get Playbook — $49 →')" class="btn-buy">Get Playbook — $49 →</button>
         </div>
       </div>
 
@@ -249,5 +249,49 @@
     </div>
   </div>
 </div>
+
+<div id="success-banner" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:#000;padding:16px 32px;border-radius:12px;font-weight:700;font-size:1rem;z-index:999;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
+  ✅ Payment confirmed! Check your email for your playbook.
+</div>
+<script>
+if (new URLSearchParams(window.location.search).get('success') === '1') {
+  document.getElementById('success-banner').style.display = 'block';
+  setTimeout(() => document.getElementById('success-banner').style.display = 'none', 6000);
+}
+</script>
+
+<script>
+async function buyPlaybook(productId, label) {
+  const btn = event.target;
+  btn.textContent = 'Redirecting...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+  try {
+    const res = await fetch('https://glistening-spontaneity-production.up.railway.app/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_id: productId,
+        success_url: 'https://clawcache.net/playbooks?success=1',
+        cancel_url: 'https://clawcache.net/playbooks'
+      })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Something went wrong. Email hello@clawfactory.me to order.');
+      btn.textContent = label;
+      btn.style.opacity = '';
+      btn.style.pointerEvents = '';
+    }
+  } catch(e) {
+    alert('Connection error. Email hello@clawfactory.me to order.');
+    btn.textContent = label;
+    btn.style.opacity = '';
+    btn.style.pointerEvents = '';
+  }
+}
+</script>
 </body>
 </html>
