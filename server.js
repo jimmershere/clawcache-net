@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Skill sandbox simulation endpoint
 app.post('/api/simulate', (req, res) => {
   const { skill } = req.body;
-  if (!skill || !skill.includes('SKILL')) {
+  if (!skill || skill.trim().length < 20) {
     return res.json({ ok: false, error: 'Paste a valid SKILL.md file — must contain skill definition content.' });
   }
 
